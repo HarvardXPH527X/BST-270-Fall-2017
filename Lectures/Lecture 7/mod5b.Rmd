@@ -1,0 +1,294 @@
+---
+title: "Module 5 Continued"
+output: html_document
+---
+
+##Statistical Methods for Reproducible Science
+
+### 5. Cross-Validation
+Cross-validation is a model validation technique for assessing how the results of a statistical analysis will generalize to an independent data set. It is mainly used in settings where the goal is prediction, and one wants to estimate how accurately a predictive model will perform in practice. In a prediction problem, a model is usually given a dataset of known data on which training is run (training data set), and a data set of unknown data against which the model is tested (testing data set). The goal of cross-validation is to define a dataset to "test" the model in the training phase (i.e., the validation data set), in order to limit problems like overfitting, give an insight on how the model will generalize to an independent dataset (i.e., an unknown dataset, etc.
+
+#### Setting
+
+* $(X,Y)\sim \wp$
+
+* Dataset:
+
+\begin{pmatrix}
+X_1 & Y_1\\ 
+. & . \\ 
+. & . \\ . & . \\ 
+X_{N} & Y_{N} 
+\end{pmatrix} 
+
+* M(X) prediction model  (trained  with our dataset)
+* Validation summary $Z(M, \wp )$
+* Estimate of $Z(M, \wp )$: $Z(M, \widehat{P} )$,  where $\widehat{P}$ is the empirical distribution
+
+* Drawback: in most cases $E[Z(M, \wp )] < E[Z(M, \widehat{P} )]$
+
+#### Implementation
+
+1. Training set:
+
+\begin{pmatrix}
+X_1 & Y_1\\ 
+. & . \\ 
+. & . \\ 
+X_{i-1} & Y_{i-1} \\
+X_{i+1} & Y_{i+1} \\
+. & . \\ 
+. & . \\ 
+X_{N} & X_{N} 
+\end{pmatrix}
+
+2. Testing set $(X_{i}, Y_{i})$
+
+3. Estimate of Z:  $Z(M^{(-i)}, \widehat{P_i})$
+where: $M^{(-i))}$ denotes the model trained on all the $N$ data points except $(X_{i}, Y_{i})$ and $\widehat{P_i}$ denotes the validation point $i$.
+
+* Repeat steps 1, 2, and 3 for each $i$, with $i=1,...,N$.
+
+* Cross Validation estimate:
+$$\frac{1}{N} \sum_{i=1}^{N} Z(M^{(-i)}, \widehat{P_i})$$ 
+
+#### Example
+
+Let's suppose that we want to get an estimate of $R^2$ using a cross validation method. We will use the `stackloss` data set. This built-in R dataset has measurements on 21 days of operation of a plant for the oxidation of ammonia (NH3) to nitric acid (HNO3).
+
+`Air.Flow` represents airflow to the plant
+
+`Water.Temp` is the cooling water inlet temperature
+
+`Acid.Conc.` is the acid concentration as a percent (coded by subtracting
+50 and then multiplying by 10)
+
+`stack.loss` is the percent of ammonia lost (times 10)
+
+More information can be seen [here.](https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/stackloss.html)
+
+```{r, message = FALSE}
+library(cvTools)
+data = stackloss
+head(data)
+```
+
+
+```{r, message=FALSE}
+attach(data)
+k = nrow(data)
+folds = cvFolds(NROW(data), K=k)
+data$holdoutpred = rep(0,nrow(data))
+```
+
+```{r}
+for(i in 1:k){ 
+train = data[folds$subsets[folds$which != i], ]
+validation = data[folds$subsets[folds$which == i], ]
+mod =lm(stack.loss ~ Air.Flow + Water.Temp + Acid.Conc., data=train)
+pred = predict(mod, newdata = validation)
+data[folds$subsets[folds$which == i], ]$holdoutpred = pred
+}
+```
+
+```{r}
+dif = abs(data$stack.loss - data$holdoutpred)
+r.sq = 1 - mean(dif^2)/var(data$stack.loss)
+r.sq
+```
+
+
+#### Ovarian Cancer Example
+
+Let's use the same ovarian cancer dataset from before. First we must upload the data in R:
+
+```{r, hide=TRUE, warning=FALSE, message=FALSE}
+#source("https://bioconductor.org/biocLite.R")
+#biocLite("curatedOvarianData")
+library(curatedOvarianData)
+source(system.file("extdata", "patientselection.config", package = "curatedOvarianData"))
+set.seed(123)
+data("TCGA_eset")
+varLabels(TCGA_eset)
+mat.gene = exprs(TCGA_eset)
+
+y = mat.gene[1,]
+x = t(mat.gene[2:6,])
+
+dd = cbind(y, x)
+dd = as.data.frame(na.omit(dd))
+head(dd)
+```
+
+Compute an $R^2$ estimate using cross-validation.
+
+```{r, warning=FALSE}
+k = nrow(dd)
+folds = cvFolds(NROW(dd),K = k)
+dd$holdoutpred = rep(0, nrow(dd))
+
+for(i in 1:k){
+  train = dd[folds$subsets[folds$which!= i], ]
+  validation = dd[folds$subsets[folds$which == i], ]
+  mod =  lm(y~., data = train)
+  pred = predict(mod, newdata = validation)
+  dd[folds$subsets[folds$which == i], ]$holdoutpred = pred
+}
+
+dif = (dd$y - dd$holdoutpred)
+1-mean(dif^2)/var(dd$y)
+```
+
+### Bootstrap
+
+In statistics, bootstrapping is any test or metric that relies on random sampling with replacement. Bootstrapping allows assigning measures of accuracy (defined in terms of bias, variance, confidence intervals, prediction error or some other such measure) to sample estimates. Bootstrapping is the practice of estimating properties of an estimator (such as its variance) by measuring those properties when sampling from an approximating distribution. One standard choice for an approximating distribution is the empirical distribution function of the observed data. In the case where a set of observations can be assumed to be from an independent and identically distributed population, this can be implemented by constructing a number of resamples with replacement, of the observed dataset (and of equal size to the observed dataset).
+
+#### Setting
+
+* Dataset 
+
+\begin{pmatrix}
+X_1 & Y_1\\ 
+. & . \\ 
+. & . \\ 
+X_{N} & Y_{N} 
+\end{pmatrix}
+
+* M(X) prediction model
+* Validation summary $Z(M, \wp )$
+
+* Estimator for $Z(M, \wp )$:   $Z(M, \widehat{P} )$ where $\widehat{P}$ is the empirical distribution using all the data
+
+#### Goal: Evaluating the level of uncertainty about  $Z(M, \widehat{P} )$
+
+#### Implementation
+
+1. Replace $\wp$ with an other distribution $Q$, where $Q = \widehat{P} $
+
+2. Simulate iid data from $Q$
+
+$$\begin{pmatrix}
+X^b_1 & Y^b_1\\ 
+. & . \\ 
+. & . \\ 
+X^b_{N} & Y^b_{N} 
+\end{pmatrix}$$
+
+where $b$ denotes the data points generated at the $b^{th}$ iteration, for $b=1,...,B$.
+
+3. Monte Carlo Estimate of $Z(M,Q)$:  $Z(M, \widehat{q}_b)$ where $\widehat{q_b}$ is the empirical distribution of $Q$ at the $b^{th}$ iteration.
+ 
+4. Repeat steps 1, 2, and 3 $B$ times and get the values $Z(M,\widehat{q}_1),..., Z(M, \widehat{q}_B)$.
+
+5. Use $Z(M, \widehat{q}_1),..., Z(M, \widehat{q}_B)$ to make inference on $Z(M, \wp )$ (e.g. compute variance, standard deviation, etc.)
+
+6. Since $Q$ has to be similar to $\wp$, $Z(M, \widehat{q}_b)$ has to be "similar"  in  distribution  to  $Z(M, \widehat{P})$. Thus, the level of variability of $Z(M, \widehat{q}_b)$ and $Z(M, \widehat{P})$  has to be similar.
+
+Example:  $V(Z(M, \widehat{q}_b)) = V(Z(M, \widehat{P}))$
+
+#### Example
+
+Let's use the low birth weight data set from before.
+
+```{r, message=FALSE}
+library(MASS)
+library(verification)
+data(birthwt)
+attach(birthwt)
+str(birthwt)
+race = factor(race)
+```
+
+Suppose we are interested in a variance estimate for the Brier score we calculated in the previous lecture. The bootstrap can be implemented as follows:
+
+```{r, warning=FALSE, results='hide', message=FALSE}
+B = 1000               # Number of iterations
+brier.boot <- rep(NA, B) # Allocation vector 
+
+for(b in 1:B){ 
+#Step 1: Resample 
+idx = sample(1:nrow(birthwt), nrow(birthwt), replace=T)
+
+#Bootstrap sample 
+x.bot = birthwt[idx,]
+
+# Step 2: Fit the model 
+mod.low = glm(low ~ lwt + race + age + ftv, data = x.bot, family=binomial(link=logit))
+pred = predict(mod.low, type='response')
+tt = verify(x.bot[,1], pred)
+
+#Step 3: Evaluate the estimator
+brier.boot[b] = tt$bs 
+}
+```
+
+Let's look at the mean and standard deviation of our estimate, as well as a histogram of the distribution of values. 
+
+```{r}
+mean(brier.boot)
+sd(brier.boot)
+hist(brier.boot, freq = F, ylim = c(0,30), col = "grey") 
+lines(density(brier.boot), lwd = 3,col = 'blue')
+```
+
+#### Ovarian Cancer Example
+
+Consider the same set of variables as in previous exercises. Compute a 95% confidence interval for the Brier Score using the bootstrap method.
+
+```{r, results='hide', warning=FALSE, message=FALSE}
+#source("https://bioconductor.org/biocLite.R")
+#biocLite("curatedOvarianData")
+library(curatedOvarianData)
+source(system.file("extdata", "patientselection.config", package = "curatedOvarianData"))
+set.seed(123)
+data("TCGA_eset")
+y = TCGA_eset$recurrence_status
+y = ifelse(y=="recurrence",1,0)
+
+x = cbind(TCGA_eset$age_at_initial_pathologic_diagnosis,
+          TCGA_eset$percent_normal_cells,TCGA_eset$percent_tumor_cells,
+          TCGA_eset$grade)
+
+bb = data.frame(na.omit(cbind(y,x)))
+head(bb)
+```
+
+
+```{r, results='hide'}
+B = 1000
+brier_boot <- rep(NA, B)
+
+for(b in 1:B){
+  #Step 1: Resample
+  idx = sample(1:nrow(bb), nrow(bb), replace=T)
+  
+  #Bootstrap sample
+  x.bot <- bb[idx,]
+  
+  # Step 2: Run the model 
+  mod.low = glm(y~., data = x.bot, family=binomial(link='logit'))
+  pred    = predict(mod.low, type='response')
+  tryme   = verify(x.bot[,1], pred)
+  
+  #Step 3: Evaluete the estimator
+  brier_boot[b]= tryme$bs
+}
+
+mean(brier_boot)
+sd(brier_boot)
+U = mean(brier_boot)+1.96* sd(brier_boot)
+L = mean(brier_boot)-1.96* sd(brier_boot)
+```
+Thus, the 95% confidence interval is (`r L`, `r U`).
+
+We can also plot another histogram for this example.
+```{r}
+hist(brier_boot, freq = F, col = "grey") 
+lines(density(brier_boot), lwd = 3,col = 'blue')
+```
+
+
+
+
+
+
