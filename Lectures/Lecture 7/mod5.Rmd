@@ -553,7 +553,7 @@ mod.surv.train = coxph(Surv(y1,y2) ~ V, data = bmt.train)
 
 4. Compute prediction summaries for the remaining validation component of the data set
 ```{r}
-lpnew = predict(mod.surv.train, new.data = bmt.test)
+lpnew = predict(mod.surv.train, newdata = bmt.test)
 ```
 
 5. Compute the C-index
