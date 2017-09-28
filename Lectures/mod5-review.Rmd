@@ -1,0 +1,111 @@
+---
+title: "Module 5 Review"
+output: html_document
+---
+
+We will break into 4 groups. Each group will be assigned a problem to code and will write their answer(s) on the board. Refer to the two previoous lectures for help with code.
+
+We will use the `GSE17260_eset` data set with genomic information for 110 advanced-stage serious ovarian cancer patients.  (A more thorough description can be found [here.](http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0009615.))
+
+Let's first upload the data using R:
+
+```{r, message = FALSE}
+source("https://bioconductor.org/biocLite.R")
+biocLite("curatedOvarianData")
+library("curatedOvarianData")
+source(system.file("extdata", "patientselection.config", package = "curatedOvarianData"))
+data("GSE17260_eset")
+varLabels(GSE17260_eset)
+set.seed(123)
+```
+
+
+### Problem 1
+
+Predict the expression of the gene in the first column using the expressions in columns `2, 3,..., 11`. The data can be obtained using the command 
+
+```{r}
+mat.gene = exprs(GSE17260_eset) # Retrieve expression data from eSets.
+```
+
+1. Select the variables of interest
+```{r}
+# Your code here
+```
+
+2. Fit an exploratory linear regression model for the variable of interest `y`.
+
+```{r}
+# Your code here
+```
+
+3. Compute the $R^2$ summary.
+
+```{r}
+# Your code here
+```
+
+
+### Problem 2
+
+This data set also provides the status of a patient, i.e. if the patient is alive or deceased, denoted by the variable `vital_status`. Predict the variable `vital_status` using the covariates `tumorstage` and `grade`, and then use these predictions to calculate the Brier score.
+
+1. Select the variables from the data set:
+```{r}
+y = GSE17260_eset$vital_status
+y = ifelse(y == "deceased", 1, 0)
+```
+
+
+2. Fit a logistic model to predict the variable `vital_status`.
+```{r}
+# Your code here
+```
+
+
+3. Compute the Brier Score.
+```{r}
+# Your code here
+```
+
+
+
+### Problem 3
+
+Consider the same set of variables as in the previous exercise. Estimate the standard
+deviation of the Brier Score using the bootstrap model.
+
+```{r}
+# Your code here
+```
+
+
+
+### Problem 4
+
+Consider the variable `vital status` and use the same set of covariates as before combined
+with the subset of genomic information `subset.gene` defined by
+
+```{r}
+subset.gene = t(mat.gene[1:50, ])
+```
+
+1. Fit a logistic model with this new set of predictors.
+
+```{r}
+# Your code here
+```
+
+
+2. Compute the AUC.
+
+```{r}
+# Your code here
+```
+
+
+
+
+
+
+
