@@ -1,0 +1,73 @@
+---
+title: "Module 6 - Computational Tools for Reproducible Science"
+output: html_document
+---
+### Code
+
+* R/RStudio
+* Python
+* Git/GitHub
+
+### Data
+
+#### Questions to ask yourself before you begin your study or research:
+
+* What type of data do I need to collect?
+* How will I organize my data?
+* What type of format does my research community use?
+* Where will I store the data?
+* How will I share the data?
+* How will I document the data?
+
+#### Ten Simple Rules for the Care and Feeding of Scientific Data
+###### Alyssa Goodman, Alberto Pepe , Alexander W. Blocker, Christine L. Borgman, Kyle Cranmer, Merce Crosas, Rosanne Di Stefano, Yolanda Gil, Paul Groth, Margaret Hedstrom, David W. Hogg, Vinay Kashyap, Ashish Mahabal, Aneta Siemiginowska, Aleksandra Slavkovic
+
+Published: April 24, 2014, [PLOS computational biology](https://doi.org/10.1371/journal.pcbi.1003542)
+
+1. Love your data, and help others love it too
+    * If you take care to make your data easily available to others, others are more likely to do the same — eventually.
+
+2. Share your data online, with a permanent identifier
+    *  The best option for releasing your data with long-term guarantee is to deposit them in whatever data archive is the "go to" place for your field. A proper, trustworthy archive will: (1) assign an identifier such as a "handle" (hdl) or "digital object identifier" (doi); (2) require that you provide adequate documentation and metadata; and (3) manage the "care and feeding" of your data by employing good curation practices. If no such archive exists in your field, there are also generic (non-domain-specific) online services that can host your data and issue persistent identifiers (see Rule 8).
+
+3. Conduct science with a particular level of reuse in mind
+    * In carrying out your work, consider what level of reuse you realistically expect and plan accordingly
+
+4. Publish workflow as context
+    * At a minimum, provide, alongside any deposit of data, a simple sketch of data flow across software, indicating how intermediate and final data products and results are generated. If it’s
+feasible and you are willing to deal with a higher level of complexity, also consider using an online service to encapsulate your workflow
+
+5. Link your data to your publications as often as possible
+    * If it’s practical and helpful, share your data as early as possible in your research workflow:
+as soon as you are done with the analysis, even before you write any articles about it
+    * Embed citations (links) to your data and code, each with its own persistent identifier, right into
+the text of your paper, just like you would reference other literature
+
+6. Publish your code (even the small bits)
+    * Your code, even the shortest script (whether or not you are proud of its quality), can be an
+important component for understanding your data and how you got your results
+
+7. State how you want to get credit
+    * The best way is to simply describe your expectations on how you would like to be acknowledged. If you want, you can also release your data under a license and indicate explicitly in the
+paper or in the metadata how you want others to give you credit
+    * Make information about you (e.g., your name, institution), about the data and/or code (e.g., origin, version, associated files, and metadata), and about exactly how you would like to get credit, as clear as possible
+
+8. Foster and use data repositories
+    * If your community already has a standard repository, use it. If you don’t know where to start looking, or you need help choosing among relevant repositories, ask an information specialist, such as a data scientist or a librarian working in your field
+    * Remember that even if your field has no domain-based repository, your institution may have one 
+
+9. Reward colleagues who share their data properly
+    * Reward your colleagues who share data and code. Rally your colleagues and engage your community by providing feedback on the quality of the data assets in your field. Praise those following the best
+practices
+    * Follow good scientific practice and give credit to those whose data you use, following their preferred reference format and according to current best practices
+
+10. Be a booster for data science
+    * You, as a scientist, need to help organize your discipline and your institution to move more quickly toward a world of open, discoverable, reproducible data and research. One important step is to advocate for hiring data specialists and for the overall support of institutional programs that
+improve data sharing
+    * Explain and show the value of well-loved data to graduate and undergraduate researchers
+
+#### Dataverse
+
+[Dataverse](https://dataverse.org/) is an open source web application to share, preserve, cite, explore, and analyze research data. It facilitates making data available to others, and allows you to replicate others' work more easily. Researchers, data authors, publishers, data distributors, and affiliated institutions all receive academic credit and web visibility.
+
+A Dataverse repository is the software installation, which then hosts multiple dataverses. Each dataverse contains datasets, and each dataset contains descriptive metadata and data files (including documentation and code that accompany the data). As an organizing method, dataverses may also contain other dataverses.
