@@ -35,4 +35,4 @@ October 19
 * Theo 
 * Tony
 * Jonathan
-* Isablle
+* Isabelle
